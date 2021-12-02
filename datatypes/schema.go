@@ -38,16 +38,18 @@ func (s *Schema) ProjectByIdx(indices []int) Schema {
 	return Schema{fields}
 }
 
-func (s *Schema) SelectByName(names []string) Schema {
+func (s *Schema) SelectByName(names []string) (Schema, []int) {
 	fields := make([]Field, 0)
+	indices := make([]int, 0)
 	for _, name := range names {
-		for _, field := range s.Fields {
+		for idx, field := range s.Fields {
 			if field.Name == name {
 				fields = append(fields, field)
+				indices = append(indices, idx)
 			}
 		}
 	}
-	return Schema{fields}
+	return Schema{fields}, indices
 }
 
 func NewSchemaFromArrow(schema arrow.Schema) Schema {
