@@ -8,7 +8,7 @@ type Field struct {
 	DataType arrow.DataType
 }
 
-func (f *Field) toArrow() arrow.Field {
+func (f *Field) ToArrow() arrow.Field {
 	return arrow.Field{
 		Name:     f.Name,
 		Type:     f.DataType,
@@ -22,15 +22,15 @@ type Schema struct {
 	Fields []Field
 }
 
-func (s *Schema) toArrow() *arrow.Schema {
+func (s *Schema) ToArrow() *arrow.Schema {
 	fields := make([]arrow.Field, len(s.Fields))
 	for idx, field := range s.Fields {
-		fields[idx] = field.toArrow()
+		fields[idx] = field.ToArrow()
 	}
 	return arrow.NewSchema(fields, nil)
 }
 
-func (s *Schema) projectByIdx(indices []int) Schema {
+func (s *Schema) ProjectByIdx(indices []int) Schema {
 	fields := make([]Field, len(indices))
 	for i, idx := range indices {
 		fields[i] = s.Fields[idx]
@@ -38,7 +38,7 @@ func (s *Schema) projectByIdx(indices []int) Schema {
 	return Schema{fields}
 }
 
-func (s *Schema) selectByName(names []string) Schema {
+func (s *Schema) SelectByName(names []string) Schema {
 	fields := make([]Field, 0)
 	for _, name := range names {
 		for _, field := range s.Fields {

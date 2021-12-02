@@ -7,20 +7,20 @@ import (
 
 // ColumnArray Abstraction over different implementations of a column vector.
 type ColumnArray interface {
-	getType() arrow.DataType
-	getValue(i int) interface{}
-	size() int
+	GetType() arrow.DataType
+	GetValue(i int) interface{}
+	Size() int
 }
 
 type ArrowFieldArray struct {
 	fieldArray array.Interface
 }
 
-func (a *ArrowFieldArray) getType() arrow.DataType {
+func (a *ArrowFieldArray) GetType() arrow.DataType {
 	return a.fieldArray.DataType()
 }
 
-func (a *ArrowFieldArray) getValue(i int) interface{} {
+func (a *ArrowFieldArray) GetValue(i int) interface{} {
 	if a.fieldArray.IsNull(i) {
 		return nil
 	}
@@ -54,7 +54,7 @@ func (a *ArrowFieldArray) getValue(i int) interface{} {
 	}
 }
 
-func (a *ArrowFieldArray) size() int {
+func (a *ArrowFieldArray) Size() int {
 	return a.fieldArray.Len()
 }
 
@@ -64,17 +64,17 @@ type LiteralValueArray struct {
 	arraySize int
 }
 
-func (l *LiteralValueArray) getType() arrow.DataType {
+func (l *LiteralValueArray) GetType() arrow.DataType {
 	return l.arrowType
 }
 
-func (l *LiteralValueArray) getValue(i int) interface{} {
+func (l *LiteralValueArray) GetValue(i int) interface{} {
 	if i < 0 || i > l.arraySize {
 		panic("index out of bound")
 	}
 	return l.value
 }
 
-func (l *LiteralValueArray) size() int {
+func (l *LiteralValueArray) Size() int {
 	return l.arraySize
 }

@@ -30,6 +30,6 @@ func TestArrowArrayBuilder_Set(t *testing.T) {
 	}
 	res := builder.Build()
 	for i := 0; i < size; i++ {
-		require.Equal(t, int8(i), res.getValue(i))
+		require.Equal(t, int8(i), res.GetValue(i))
 	}
 }
