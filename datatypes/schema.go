@@ -38,7 +38,16 @@ func (s *Schema) ProjectByIdx(indices []int) Schema {
 	return Schema{fields}
 }
 
+// SelectByName when names are empty, return the whole schema
 func (s *Schema) SelectByName(names []string) (Schema, []int) {
+	if len(names) == 0 {
+		indices := make([]int, len(s.Fields))
+		for i := 0; i < len(s.Fields); i++ {
+			indices[i] = i
+		}
+		return *s, indices
+	}
+
 	fields := make([]Field, 0)
 	indices := make([]int, 0)
 	for _, name := range names {
