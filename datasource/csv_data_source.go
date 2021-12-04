@@ -16,14 +16,24 @@ type CsvDataSource struct {
 	schema    datatypes.Schema
 	batchSize int
 	csvReader *csv.Reader
+
+	// due to csv reader can't get total line nums, so use next() method to hold recordBatch
+	cursorRecordBatch datatypes.RecordBatch
+
+	// projection schema
+	pjSchema datatypes.Schema
+	// projection indices
+	pjIndices []int
+	// arrow array builders
+	builders []datatypes.ArrowArrayBuilder
 }
 
-func NewCsvDataSource(filename string, batchSize int) *CsvDataSource {
+func NewCsvDataSource(filename string, batchSize int, projection []string) *CsvDataSource {
 	ds := &CsvDataSource{
 		filename:  filename,
 		batchSize: batchSize,
 	}
-	ds.inferSchema()
+	ds.inferSchema(projection)
 	return ds
 }
 
@@ -31,10 +41,11 @@ func (c *CsvDataSource) Schema() datatypes.Schema {
 	return c.schema
 }
 
-func (c *CsvDataSource) Scan(projection []string) []datatypes.RecordBatch {
-	readSchema, readIndices := c.schema.SelectByName(projection)
-	res := make([]datatypes.RecordBatch, 0)
+func (c *CsvDataSource) Scan() datatypes.RecordBatch {
+	return c.cursorRecordBatch
+}
 
+func (c *CsvDataSource) Next() bool {
 	batchBuf := make([][]string, 0, c.batchSize)
 	iterCnt := 0
 	for {
@@ -49,18 +60,20 @@ func (c *CsvDataSource) Scan(projection []string) []datatypes.RecordBatch {
 		batchBuf = append(batchBuf, record)
 		iterCnt++
 		if iterCnt == c.batchSize {
-			res = append(res, c.createBatch(readSchema, readIndices, batchBuf))
-			iterCnt = 0
-			batchBuf = batchBuf[:0]
+			c.cursorRecordBatch = c.createBatch(c.pjSchema, c.pjIndices, batchBuf)
+			return true
 		}
 	}
+
 	if len(batchBuf) != 0 {
-		res = append(res, c.createBatch(readSchema, readIndices, batchBuf))
+		c.cursorRecordBatch = c.createBatch(c.pjSchema, c.pjIndices, batchBuf)
+		return true
 	}
-	return res
+
+	return false
 }
 
-func (c *CsvDataSource) inferSchema() {
+func (c *CsvDataSource) inferSchema(projection []string) {
 	file, err := ioutil.ReadFile(c.filename)
 	if err != nil {
 		panic(fmt.Sprintf("csv file: %s not exist!", c.filename))
@@ -82,6 +95,12 @@ func (c *CsvDataSource) inferSchema() {
 
 	c.schema = datatypes.Schema{Fields: headers}
 	c.csvReader = r
+
+	c.pjSchema, c.pjIndices = c.schema.SelectByName(projection)
+	c.builders = make([]datatypes.ArrowArrayBuilder, len(c.pjSchema.Fields))
+	for i, field := range c.pjSchema.Fields {
+		c.builders[i] = datatypes.NewArrowArrayBuilder(memory.NewGoAllocator(), field.DataType)
+	}
 }
 
 func (c *CsvDataSource) createBatch(
