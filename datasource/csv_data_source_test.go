@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-const dir = "./testdata"
+const dir = "../testdata"
 
 func TestCsvDataSource_Schema(t *testing.T) {
 	csv := NewCsvDataSource(dir+"/employee.csv", 1024, []string{})
