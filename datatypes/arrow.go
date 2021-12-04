@@ -68,6 +68,12 @@ func (ab *ArrowArrayBuilder) Append(val interface{}) {
 	}
 }
 
+func (ab *ArrowArrayBuilder) AppendValues(values ...interface{}) {
+	for _, val := range values {
+		ab.Append(val)
+	}
+}
+
 func (ab *ArrowArrayBuilder) Build() ColumnArray {
 	return &ArrowFieldArray{fieldArray: ab.builder.NewArray()}
 }

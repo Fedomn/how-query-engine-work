@@ -12,8 +12,7 @@ type RecordBatch struct {
 }
 
 func (r *RecordBatch) RowCount() int {
-	// TODO
-	return 0
+	return r.Fields[0].Size()
 }
 
 func (r *RecordBatch) ColumnCount() int {
