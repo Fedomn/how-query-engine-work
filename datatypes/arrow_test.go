@@ -5,6 +5,7 @@ import (
 	"github.com/apache/arrow/go/v6/arrow"
 	"github.com/apache/arrow/go/v6/arrow/array"
 	"github.com/apache/arrow/go/v6/arrow/memory"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -95,8 +96,8 @@ func TestArrowBasic(t *testing.T) {
 	arr := sb.NewArray().(*array.Struct)
 	defer arr.Release()
 
-	fmt.Printf("NullN() = %d\n", arr.NullN())
-	fmt.Printf("Len()   = %d\n", arr.Len())
+	require.Equal(t, 1, arr.NullN(), "NullN()")
+	require.Equal(t, 4, arr.Len(), "Len()")
 
 	// field 0 is a list
 	list := arr.Field(0).(*array.List)
@@ -106,7 +107,7 @@ func TestArrowBasic(t *testing.T) {
 	// joe has 3 chars + nul + nul + 4
 	// 3 . 3 . 3 . 7 (add +4 )
 	offsets := list.Offsets()
-	fmt.Printf("%d\n", offsets)
+	require.Equal(t, []int32{0, 3, 3, 3, 7}, offsets)
 
 	varr := list.ListValues().(*array.Uint8)
 	defer varr.Release()
@@ -114,27 +115,38 @@ func TestArrowBasic(t *testing.T) {
 	ints := arr.Field(1).(*array.Int32)
 	defer ints.Release()
 
-	for i := 0; i < arr.Len(); i++ {
+	buildStructStr := func(arr *array.Struct, varr *array.Uint8, i int) string {
+		var res = ""
 		if !arr.IsValid(i) {
-			fmt.Printf("Struct[%d] = (null)\n", i)
-			continue
+			return fmt.Sprintf("Struct[%d] = (null)", i)
 		}
-		fmt.Printf("Struct[%d] = [", i)
+		res += fmt.Sprintf("Struct[%d] = [", i)
 		pos := int(offsets[i])
 		switch {
 		case list.IsValid(pos):
-			fmt.Printf("[")
+			res += fmt.Sprintf("[")
 			for j := offsets[i]; j < offsets[i+1]; j++ {
 				if j != offsets[i] {
-					fmt.Printf(", ")
+					res += fmt.Sprintf(", ")
 				}
-				fmt.Printf("%v", string(varr.Value(int(j))))
+				res += fmt.Sprintf("%v", string(varr.Value(int(j))))
 			}
-			fmt.Printf("], ")
+			res += fmt.Sprintf("], ")
 		default:
-			fmt.Printf("(null), ")
+			res += fmt.Sprintf("(null), ")
 		}
-		fmt.Printf("%d]\n", ints.Value(i))
+		res += fmt.Sprintf("%d]", ints.Value(i))
+		return res
+	}
+
+	structStrList := []string{
+		"Struct[0] = [[j, o, e], 1]",
+		"Struct[1] = [[], 2]",
+		"Struct[2] = (null)",
+		"Struct[3] = [[m, a, r, k], 4]",
+	}
+	for i, s := range structStrList {
+		require.Equal(t, s, buildStructStr(arr, varr, i))
 	}
 }
 
@@ -235,11 +247,16 @@ func TestArrowJson(t *testing.T) {
 	tr := array.NewTableReader(tbl, 5)
 	defer tr.Release()
 
+	checkList := []string{
+		`rec[0]["Geek"]: {["Adheip"] [24] {["IND"] [["Chandigarh" "Banglore"]]}}`,
+		`rec[1]["Geek"]: {["Nitish"] [32] {["IND"] [["Ranchi" "Banglore"]]}}`,
+	}
+
 	n := 0
 	for tr.Next() {
 		rec := tr.Record()
 		for i, col := range rec.Columns() {
-			fmt.Printf("rec[%d][%q]: %v\n", n, rec.ColumnName(i), col)
+			require.Equal(t, checkList[n], fmt.Sprintf("rec[%d][%q]: %v", n, rec.ColumnName(i), col))
 		}
 		n++
 	}

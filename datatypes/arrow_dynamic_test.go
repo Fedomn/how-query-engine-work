@@ -2,8 +2,8 @@ package datatypes
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/apache/arrow/go/v6/arrow"
+	"github.com/stretchr/testify/require"
 	"reflect"
 	"testing"
 )
@@ -85,5 +85,12 @@ func TestDynamicJson(t *testing.T) {
 			Type: arrow.StructOf(createArrowFields(data)[1:]...),
 		},
 	}
-	fmt.Println(structFields)
+	require.Equal(t, "Geek", structFields[0].Name)
+	require.Equal(t, arrow.STRUCT, structFields[0].Type.ID())
+
+	fields := []string{"Name", "Age", "Country", "City"}
+	structType := structFields[0].Type.(*arrow.StructType)
+	for i, field := range fields {
+		require.Equal(t, field, structType.Field(i).Name)
+	}
 }
