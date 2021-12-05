@@ -90,7 +90,7 @@ func TestDynamicJson(t *testing.T) {
 
 	fields := []string{"Name", "Age", "Country", "City"}
 	structType := structFields[0].Type.(*arrow.StructType)
-	for i, field := range fields {
-		require.Equal(t, field, structType.Field(i).Name)
+	for i := range fields {
+		require.Contains(t, fields, structType.Field(i).Name)
 	}
 }
