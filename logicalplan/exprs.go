@@ -121,6 +121,10 @@ func (l LiteralDouble) String() string {
 	return fmt.Sprintf("%g", l.n)
 }
 
+func NewLiteralDouble(n float64) LiteralDouble {
+	return LiteralDouble{n}
+}
+
 // ---------------------------------------------Cast Expressions---------------------------------------------
 
 // CastExpr Cast current logical expr type to target dataType
@@ -267,6 +271,10 @@ func (a Alias) String() string {
 	return fmt.Sprintf("%s as %s", a.expr, a.alias)
 }
 
+func NewAlias(expr LogicalExpr, alias string) Alias {
+	return Alias{expr, alias}
+}
+
 // ---------------------------------------------Scalar Functions---------------------------------------------
 
 type ScalarFunction struct {
@@ -312,7 +320,7 @@ func NewAvg(input LogicalExpr) AggregateExpr {
 }
 
 type AggregateCountExpr struct {
-	expr LogicalExpr
+	AggregateExpr
 }
 
 func (a AggregateCountExpr) ToField(input LogicalPlan) datatypes.Field {
@@ -323,12 +331,12 @@ func (a AggregateCountExpr) String() string {
 	return fmt.Sprintf("COUNT(%s)", a.expr)
 }
 
-func NewCount(input LogicalExpr) AggregateCountExpr {
-	return AggregateCountExpr{input}
+func NewCount(input LogicalExpr) AggregateExpr {
+	return AggregateExpr{"COUNT", input}
 }
 
 type AggregateCountDistinctExpr struct {
-	expr LogicalExpr
+	AggregateExpr
 }
 
 func (a AggregateCountDistinctExpr) ToField(input LogicalPlan) datatypes.Field {
@@ -339,6 +347,6 @@ func (a AggregateCountDistinctExpr) String() string {
 	return fmt.Sprintf("COUNT(DISTINCT %s)", a.expr)
 }
 
-func NewCountDistinct(input LogicalExpr) AggregateCountDistinctExpr {
-	return AggregateCountDistinctExpr{input}
+func NewCountDistinct(input LogicalExpr) AggregateExpr {
+	return AggregateExpr{"COUNT_DISTINCT", input}
 }
