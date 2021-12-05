@@ -96,17 +96,17 @@ func (p *ParquetDataSource) createFiled(elem *parquet.SchemaElement) datatypes.F
 	var dType arrow.DataType
 	switch elem.GetType() {
 	case parquet.Type_BOOLEAN:
-		dType = &datatypes.BooleanType{}
+		dType = datatypes.BooleanType
 	case parquet.Type_INT32:
-		dType = &datatypes.Int32Type{}
+		dType = datatypes.Int32Type
 	case parquet.Type_INT64:
-		dType = &datatypes.Int64Type{}
+		dType = datatypes.Int64Type
 	case parquet.Type_FLOAT:
-		dType = &datatypes.FloatType{}
+		dType = datatypes.FloatType
 	case parquet.Type_DOUBLE:
-		dType = &datatypes.DoubleType{}
+		dType = datatypes.DoubleType
 	case parquet.Type_BYTE_ARRAY, parquet.Type_FIXED_LEN_BYTE_ARRAY, parquet.Type_INT96:
-		dType = &datatypes.StringType{}
+		dType = datatypes.StringType
 	default:
 		panic(fmt.Sprintf("parquet not support type: %v", elem.GetType()))
 	}

@@ -89,7 +89,7 @@ func (c *CsvDataSource) inferSchema(projection []string) {
 	for _, record := range firstRecord {
 		headers = append(headers, datatypes.Field{
 			Name:     record,
-			DataType: &datatypes.StringType{},
+			DataType: datatypes.StringType,
 		})
 	}
 

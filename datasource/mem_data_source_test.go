@@ -50,16 +50,16 @@ func TestInMemDataSource_Scan_with_projection(t *testing.T) {
 
 func buildSchema() datatypes.Schema {
 	fields := []datatypes.Field{
-		{"Id", &datatypes.Int8Type{}},
-		{"Name", &datatypes.StringType{}},
+		{"Id", datatypes.Int8Type},
+		{"Name", datatypes.StringType},
 	}
 	schema := datatypes.Schema{Fields: fields}
 	return schema
 }
 
 func buildRecordBatch(schema datatypes.Schema) datatypes.RecordBatch {
-	idBuilder := datatypes.NewArrowArrayBuilder(memory.NewGoAllocator(), &datatypes.Int8Type{})
-	nameBuilder := datatypes.NewArrowArrayBuilder(memory.NewGoAllocator(), &datatypes.StringType{})
+	idBuilder := datatypes.NewArrowArrayBuilder(memory.NewGoAllocator(), datatypes.Int8Type)
+	nameBuilder := datatypes.NewArrowArrayBuilder(memory.NewGoAllocator(), datatypes.StringType)
 	idBuilder.AppendValues(int8(1), int8(2), int8(3), int8(4))
 	nameBuilder.AppendValues("a", "b", "c", "d")
 

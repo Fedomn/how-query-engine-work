@@ -23,7 +23,7 @@ func TestIntArray(t *testing.T) {
 }
 
 func TestArrowArrayBuilder_Set(t *testing.T) {
-	builder := NewArrowArrayBuilder(memory.NewGoAllocator(), &Int8Type{})
+	builder := NewArrowArrayBuilder(memory.NewGoAllocator(), Int8Type)
 	size := 10
 	for i := 0; i < size; i++ {
 		builder.Append(int8(i))
