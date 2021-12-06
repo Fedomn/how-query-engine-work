@@ -64,17 +64,21 @@ type LiteralValueArray struct {
 	arraySize int
 }
 
-func (l *LiteralValueArray) GetType() arrow.DataType {
+func (l LiteralValueArray) GetType() arrow.DataType {
 	return l.arrowType
 }
 
-func (l *LiteralValueArray) GetValue(i int) interface{} {
+func (l LiteralValueArray) GetValue(i int) interface{} {
 	if i < 0 || i > l.arraySize {
 		panic("index out of bound")
 	}
 	return l.value
 }
 
-func (l *LiteralValueArray) Size() int {
+func (l LiteralValueArray) Size() int {
 	return l.arraySize
+}
+
+func NewLiteralValueArray(arrowType arrow.DataType, value interface{}, arraySize int) LiteralValueArray {
+	return LiteralValueArray{arrowType, value, arraySize}
 }
