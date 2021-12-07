@@ -77,3 +77,5 @@ func (ab *ArrowArrayBuilder) AppendValues(values ...interface{}) {
 func (ab *ArrowArrayBuilder) Build() ColumnArray {
 	return &ArrowFieldArray{fieldArray: ab.builder.NewArray()}
 }
+
+// TODO use ab.builder.Reserve(n) to init columnArray size
