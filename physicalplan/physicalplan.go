@@ -18,6 +18,8 @@ type PhysicalPlan interface {
 
 	// Children Returns the children (inputs) of this physical plan.
 	Children() []PhysicalPlan
+
+	String() string
 }
 
 // PrettyFormat Format a physical plan in human-readable form
