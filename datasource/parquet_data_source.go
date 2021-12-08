@@ -7,6 +7,7 @@ import (
 	"github.com/xitongsys/parquet-go-source/local"
 	"github.com/xitongsys/parquet-go/parquet"
 	"github.com/xitongsys/parquet-go/reader"
+	"log"
 	"query-engine/datatypes"
 )
 
@@ -53,6 +54,7 @@ func (p *ParquetDataSource) Scan() datatypes.RecordBatch {
 	for i := 0; i < len(p.builders); i++ {
 		fields[i] = p.builders[i].Build()
 	}
+	log.Printf("ParquetDataSource Scan cursor: %d\n", p.cursor)
 	return datatypes.RecordBatch{
 		Schema: p.schema,
 		Fields: fields,
