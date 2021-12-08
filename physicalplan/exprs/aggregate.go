@@ -8,13 +8,13 @@ import (
 // ---------------------------------------------Aggregate Expressions---------------------------------------------
 
 type AggregateExpr interface {
-	inputExpr() physicalplan.PhysicalExpr
-	createAccumulator() Accumulator
+	InputExpr() physicalplan.PhysicalExpr
+	CreateAccumulator() Accumulator
 }
 
 type Accumulator interface {
-	accumulate(val interface{})
-	finalValue() interface{}
+	Accumulate(val interface{})
+	FinalValue() interface{}
 }
 
 type SumExpr struct {
@@ -25,11 +25,11 @@ func NewSumExpr(expr physicalplan.PhysicalExpr) SumExpr {
 	return SumExpr{expr}
 }
 
-func (s SumExpr) inputExpr() physicalplan.PhysicalExpr {
+func (s SumExpr) InputExpr() physicalplan.PhysicalExpr {
 	return s.expr
 }
 
-func (s SumExpr) createAccumulator() Accumulator {
+func (s SumExpr) CreateAccumulator() Accumulator {
 	return &SumAccumulator{}
 }
 
@@ -41,7 +41,7 @@ type SumAccumulator struct {
 	val interface{}
 }
 
-func (s *SumAccumulator) accumulate(val interface{}) {
+func (s *SumAccumulator) Accumulate(val interface{}) {
 	if val != nil {
 		if s.val == nil {
 			s.val = val
@@ -74,7 +74,7 @@ func (s *SumAccumulator) accumulate(val interface{}) {
 	}
 }
 
-func (s *SumAccumulator) finalValue() interface{} {
+func (s *SumAccumulator) FinalValue() interface{} {
 	return s.val
 }
 
@@ -86,19 +86,23 @@ func NewMaxExpr(expr physicalplan.PhysicalExpr) MaxExpr {
 	return MaxExpr{expr}
 }
 
-func (m MaxExpr) inputExpr() physicalplan.PhysicalExpr {
+func (m MaxExpr) InputExpr() physicalplan.PhysicalExpr {
 	return m.expr
 }
 
-func (m MaxExpr) createAccumulator() Accumulator {
+func (m MaxExpr) CreateAccumulator() Accumulator {
 	return &MaxAccumulator{}
+}
+
+func (m MaxExpr) String() string {
+	return fmt.Sprintf("SUM(%s)", m.expr)
 }
 
 type MaxAccumulator struct {
 	val interface{}
 }
 
-func (m *MaxAccumulator) accumulate(val interface{}) {
+func (m *MaxAccumulator) Accumulate(val interface{}) {
 	if val != nil {
 		if m.val == nil {
 			m.val = val
@@ -135,7 +139,7 @@ func (m *MaxAccumulator) accumulate(val interface{}) {
 	}
 }
 
-func (m *MaxAccumulator) finalValue() interface{} {
+func (m *MaxAccumulator) FinalValue() interface{} {
 	return m.val
 }
 
@@ -147,19 +151,23 @@ func NewMinExpr(expr physicalplan.PhysicalExpr) MinExpr {
 	return MinExpr{expr}
 }
 
-func (m MinExpr) inputExpr() physicalplan.PhysicalExpr {
+func (m MinExpr) InputExpr() physicalplan.PhysicalExpr {
 	return m.expr
 }
 
-func (m MinExpr) createAccumulator() Accumulator {
+func (m MinExpr) CreateAccumulator() Accumulator {
 	return &MinAccumulator{}
+}
+
+func (m MinExpr) String() string {
+	return fmt.Sprintf("MIN(%s)", m.expr)
 }
 
 type MinAccumulator struct {
 	val interface{}
 }
 
-func (m *MinAccumulator) accumulate(val interface{}) {
+func (m *MinAccumulator) Accumulate(val interface{}) {
 	if val != nil {
 		if m.val == nil {
 			m.val = val
@@ -196,6 +204,6 @@ func (m *MinAccumulator) accumulate(val interface{}) {
 	}
 }
 
-func (m *MinAccumulator) finalValue() interface{} {
+func (m *MinAccumulator) FinalValue() interface{} {
 	return m.val
 }
