@@ -10,20 +10,20 @@ import (
 
 // Column Logical expression representing a reference to a column by name.
 type Column struct {
-	name string
+	Name string
 }
 
 func (c Column) ToField(input LogicalPlan) datatypes.Field {
 	for _, field := range input.Schema().Fields {
-		if field.Name == c.name {
+		if field.Name == c.Name {
 			return field
 		}
 	}
-	panic(fmt.Sprintf("No column named %s", c.name))
+	panic(fmt.Sprintf("No column named %s", c.Name))
 }
 
 func (c Column) String() string {
-	return fmt.Sprintf("#%s", c.name)
+	return fmt.Sprintf("#%s", c.Name)
 }
 
 func NewCol(name string) Column {
@@ -32,15 +32,15 @@ func NewCol(name string) Column {
 
 // ColumnIndex Logical expression representing a reference to a column by index.
 type ColumnIndex struct {
-	index int
+	Index int
 }
 
 func (c ColumnIndex) ToField(input LogicalPlan) datatypes.Field {
-	return input.Schema().Fields[c.index]
+	return input.Schema().Fields[c.Index]
 }
 
 func (c ColumnIndex) String() string {
-	return fmt.Sprintf("#%d", c.index)
+	return fmt.Sprintf("#%d", c.Index)
 }
 
 func NewColumnIndex(i int) ColumnIndex {
@@ -129,19 +129,19 @@ func NewLiteralDouble(n float64) LiteralDouble {
 
 // CastExpr Cast current logical expr type to target dataType
 type CastExpr struct {
-	expr  LogicalExpr
+	Expr  LogicalExpr
 	dType arrow.DataType
 }
 
 func (c CastExpr) ToField(input LogicalPlan) datatypes.Field {
 	return datatypes.Field{
-		Name:     c.expr.ToField(input).Name,
+		Name:     c.Expr.ToField(input).Name,
 		DataType: c.dType,
 	}
 }
 
 func (c CastExpr) String() string {
-	return fmt.Sprintf("CAST(%s AS %s)", c.expr, c.dType)
+	return fmt.Sprintf("CAST(%s AS %s)", c.Expr, c.dType)
 }
 
 func NewCast(expr LogicalExpr, dType arrow.DataType) CastExpr {
@@ -154,12 +154,12 @@ func NewCast(expr LogicalExpr, dType arrow.DataType) CastExpr {
 type BinaryExpr struct {
 	name string
 	op   string
-	l    LogicalExpr
-	r    LogicalExpr
+	L    LogicalExpr
+	R    LogicalExpr
 }
 
 func (b BinaryExpr) String() string {
-	return fmt.Sprintf("%s %s %s", b.l, b.op, b.r)
+	return fmt.Sprintf("%s %s %s", b.L, b.op, b.R)
 }
 
 // BooleanBinaryExpr an expression return a boolean type
@@ -207,7 +207,7 @@ type MathExpr struct {
 func (m MathExpr) ToField(input LogicalPlan) datatypes.Field {
 	return datatypes.Field{
 		Name:     m.name,
-		DataType: m.l.ToField(input).DataType,
+		DataType: m.L.ToField(input).DataType,
 	}
 }
 
@@ -259,16 +259,16 @@ func NewNot(expr LogicalExpr) Not {
 
 // Alias expression aliased
 type Alias struct {
-	expr  LogicalExpr
+	Expr  LogicalExpr
 	alias string
 }
 
 func (a Alias) ToField(input LogicalPlan) datatypes.Field {
-	return datatypes.Field{Name: a.alias, DataType: a.expr.ToField(input).DataType}
+	return datatypes.Field{Name: a.alias, DataType: a.Expr.ToField(input).DataType}
 }
 
 func (a Alias) String() string {
-	return fmt.Sprintf("%s as %s", a.expr, a.alias)
+	return fmt.Sprintf("%s as %s", a.Expr, a.alias)
 }
 
 func NewAlias(expr LogicalExpr, alias string) Alias {
@@ -294,16 +294,16 @@ func (s ScalarFunction) String() string {
 // ---------------------------------------------Aggregate Expressions---------------------------------------------
 
 type AggregateExpr struct {
-	name string
-	expr LogicalExpr
+	Name string
+	Expr LogicalExpr
 }
 
 func (a AggregateExpr) ToField(input LogicalPlan) datatypes.Field {
-	return datatypes.Field{Name: a.name, DataType: a.expr.ToField(input).DataType}
+	return datatypes.Field{Name: a.Name, DataType: a.Expr.ToField(input).DataType}
 }
 
 func (a AggregateExpr) String() string {
-	return fmt.Sprintf("%s(%s)", a.name, a.expr)
+	return fmt.Sprintf("%s(%s)", a.Name, a.Expr)
 }
 
 func NewSum(input LogicalExpr) AggregateExpr {
@@ -328,7 +328,7 @@ func (a AggregateCountExpr) ToField(input LogicalPlan) datatypes.Field {
 }
 
 func (a AggregateCountExpr) String() string {
-	return fmt.Sprintf("COUNT(%s)", a.expr)
+	return fmt.Sprintf("COUNT(%s)", a.Expr)
 }
 
 func NewCount(input LogicalExpr) AggregateExpr {
@@ -344,7 +344,7 @@ func (a AggregateCountDistinctExpr) ToField(input LogicalPlan) datatypes.Field {
 }
 
 func (a AggregateCountDistinctExpr) String() string {
-	return fmt.Sprintf("COUNT(DISTINCT %s)", a.expr)
+	return fmt.Sprintf("COUNT(DISTINCT %s)", a.Expr)
 }
 
 func NewCountDistinct(input LogicalExpr) AggregateExpr {
