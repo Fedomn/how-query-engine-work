@@ -10,7 +10,6 @@ import (
 	"query-engine/physicalplan/exprs"
 )
 
-// HashAggregateExec steps:
 type HashAggregateExec struct {
 	// input plan to scan datasource and produce recordBatch
 	input physicalplan.PhysicalPlan
