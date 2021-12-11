@@ -9,7 +9,7 @@ import (
 const filename = dir + "/alltypes_plain.parquet"
 
 func TestParquetDataSource_Schema(t *testing.T) {
-	pds := NewParquetDataSource(filename, 10, []string{})
+	pds := NewParquetDataSource(filename, 10)
 	headers := []string{"Id", "Bool_col", "Tinyint_col", "Smallint_col", "Int_col", "Bigint_col", "Float_col", "Double_col", "Date_string_col", "String_col", "Timestamp_col"}
 	for i, header := range headers {
 		require.Equal(t, header, pds.Schema().Fields[i].Name)
@@ -17,8 +17,8 @@ func TestParquetDataSource_Schema(t *testing.T) {
 }
 
 func TestParquetDataSource_Scan_with_no_projection(t *testing.T) {
-	pds := NewParquetDataSource(filename, 1204, []string{})
-	recordBatch := pds.Scan()
+	pds := NewParquetDataSource(filename, 1204)
+	recordBatch := pds.Scan([]string{})
 	firstColumn := recordBatch.Field(0)
 	firstColumnData := []int32{4, 5, 6, 7, 2, 3, 0, 1}
 	for i, datum := range firstColumnData {
@@ -27,8 +27,8 @@ func TestParquetDataSource_Scan_with_no_projection(t *testing.T) {
 }
 
 func TestParquetDataSource_Scan_with_projection(t *testing.T) {
-	pds := NewParquetDataSource(filename, 1024, []string{"Timestamp_col"})
-	recordBatch := pds.Scan()
+	pds := NewParquetDataSource(filename, 1024)
+	recordBatch := pds.Scan([]string{"Timestamp_col"})
 	firstColumn := recordBatch.Field(0)
 	firstValue := firstColumn.GetValue(1)
 	time := types.INT96ToTime(firstValue.(string))
@@ -36,18 +36,18 @@ func TestParquetDataSource_Scan_with_projection(t *testing.T) {
 }
 
 func TestParquetDataSource_Scan_with_smallBatch(t *testing.T) {
-	pds := NewParquetDataSource(filename, 3, []string{"Bool_col"})
+	pds := NewParquetDataSource(filename, 3)
 
 	require.True(t, pds.Next())
-	res := pds.Scan()
+	res := pds.Scan([]string{"Bool_col"})
 	require.Equal(t, 3, res.RowCount())
 
 	require.True(t, pds.Next())
-	res = pds.Scan()
+	res = pds.Scan([]string{"Bool_col"})
 	require.Equal(t, 3, res.RowCount())
 
 	require.True(t, pds.Next())
-	res = pds.Scan()
+	res = pds.Scan([]string{"Bool_col"})
 	require.Equal(t, 2, res.RowCount())
 	require.False(t, pds.Next())
 

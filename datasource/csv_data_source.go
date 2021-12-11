@@ -18,7 +18,7 @@ type CsvDataSource struct {
 	csvReader *csv.Reader
 
 	// due to csv reader can't get total line nums, so use next() method to hold recordBatch
-	cursorRecordBatch datatypes.RecordBatch
+	cursorBatchBuf [][]string
 
 	// projection schema
 	pjSchema datatypes.Schema
@@ -28,12 +28,12 @@ type CsvDataSource struct {
 	builders []datatypes.ArrowArrayBuilder
 }
 
-func NewCsvDataSource(filename string, batchSize int, projection []string) *CsvDataSource {
+func NewCsvDataSource(filename string, batchSize int) *CsvDataSource {
 	ds := &CsvDataSource{
 		filename:  filename,
 		batchSize: batchSize,
 	}
-	ds.inferSchema(projection)
+	ds.inferSchema()
 	return ds
 }
 
@@ -41,8 +41,9 @@ func (c *CsvDataSource) Schema() datatypes.Schema {
 	return c.schema
 }
 
-func (c *CsvDataSource) Scan() datatypes.RecordBatch {
-	return c.cursorRecordBatch
+func (c *CsvDataSource) Scan(projection []string) datatypes.RecordBatch {
+	c.inferProjection(projection)
+	return c.createBatch(c.pjSchema, c.pjIndices, c.cursorBatchBuf)
 }
 
 func (c *CsvDataSource) Next() bool {
@@ -60,20 +61,20 @@ func (c *CsvDataSource) Next() bool {
 		batchBuf = append(batchBuf, record)
 		iterCnt++
 		if iterCnt == c.batchSize {
-			c.cursorRecordBatch = c.createBatch(c.pjSchema, c.pjIndices, batchBuf)
+			c.cursorBatchBuf = batchBuf
 			return true
 		}
 	}
 
 	if len(batchBuf) != 0 {
-		c.cursorRecordBatch = c.createBatch(c.pjSchema, c.pjIndices, batchBuf)
+		c.cursorBatchBuf = batchBuf
 		return true
 	}
 
 	return false
 }
 
-func (c *CsvDataSource) inferSchema(projection []string) {
+func (c *CsvDataSource) inferSchema() {
 	file, err := ioutil.ReadFile(c.filename)
 	if err != nil {
 		panic(fmt.Sprintf("csv file: %s not exist!", c.filename))
@@ -95,7 +96,9 @@ func (c *CsvDataSource) inferSchema(projection []string) {
 
 	c.schema = datatypes.Schema{Fields: headers}
 	c.csvReader = r
+}
 
+func (c *CsvDataSource) inferProjection(projection []string) {
 	c.pjSchema, c.pjIndices = c.schema.SelectByName(projection)
 	c.builders = make([]datatypes.ArrowArrayBuilder, len(c.pjSchema.Fields))
 	for i, field := range c.pjSchema.Fields {

@@ -33,7 +33,7 @@ func TestHashAggregateExec_encode_decode(t *testing.T) {
 }
 
 func TestHashAggregateExec(t *testing.T) {
-	pds := datasource.NewParquetDataSource(filename, 10, []string{})
+	pds := datasource.NewParquetDataSource(filename, 10)
 	headers := []string{"Id", "Bool_col", "Tinyint_col", "Smallint_col", "Int_col", "Bigint_col", "Float_col", "Double_col", "Date_string_col", "String_col", "Timestamp_col"}
 	for i, header := range headers {
 		require.Equal(t, header, pds.Schema().Fields[i].Name)

@@ -7,7 +7,7 @@ import (
 )
 
 func csvDataFrame() DataFrame {
-	csv := datasource.NewCsvDataSource(dir+"/employee.csv", 1024, []string{})
+	csv := datasource.NewCsvDataSource(dir+"/employee.csv", 1024)
 	return NewDefaultDataFrame(NewScan("employee", csv, []string{}))
 }
 

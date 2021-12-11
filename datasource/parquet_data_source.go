@@ -30,9 +30,9 @@ type ParquetDataSource struct {
 	builders []datatypes.ArrowArrayBuilder
 }
 
-func NewParquetDataSource(filename string, batchSize int, projection []string) *ParquetDataSource {
+func NewParquetDataSource(filename string, batchSize int) *ParquetDataSource {
 	p := &ParquetDataSource{filename: filename, batchSize: batchSize}
-	p.inferSchema(projection)
+	p.inferSchema()
 	return p
 }
 
@@ -40,7 +40,9 @@ func (p *ParquetDataSource) Schema() datatypes.Schema {
 	return p.schema
 }
 
-func (p *ParquetDataSource) Scan() datatypes.RecordBatch {
+func (p *ParquetDataSource) Scan(projection []string) datatypes.RecordBatch {
+	p.inferProjection(projection)
+
 	for i, pjIdx := range p.pjIndices {
 		data, _, _, err := p.pr.ReadColumnByIndex(int64(pjIdx), int64(p.batchSize))
 		if err != nil {
@@ -66,7 +68,7 @@ func (p *ParquetDataSource) Next() bool {
 }
 
 // parquet read refer to https://github.com/xitongsys/parquet-go/blob/master/tool/parquet-tools/parquet-tools.go
-func (p *ParquetDataSource) inferSchema(projection []string) {
+func (p *ParquetDataSource) inferSchema() {
 	fr, err := local.NewLocalFileReader(p.filename)
 	if err != nil {
 		panic(fmt.Sprintf("Can't open file: %v", err))
@@ -86,7 +88,9 @@ func (p *ParquetDataSource) inferSchema(projection []string) {
 	p.pr = pr
 	p.cursor = 0
 	p.numRows = p.pr.GetNumRows()
+}
 
+func (p *ParquetDataSource) inferProjection(projection []string) {
 	p.pjSchema, p.pjIndices = p.schema.SelectByName(projection)
 	p.builders = make([]datatypes.ArrowArrayBuilder, len(p.pjSchema.Fields))
 	for i, field := range p.pjSchema.Fields {

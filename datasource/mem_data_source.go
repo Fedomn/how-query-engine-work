@@ -23,20 +23,12 @@ type InMemDataSource struct {
 	builders []datatypes.ArrowArrayBuilder
 }
 
-func NewInMemDataSource(schema datatypes.Schema, data datatypes.RecordBatch, projection []string) *InMemDataSource {
-	readSchema, readIndices := schema.SelectByName(projection)
-	builders := make([]datatypes.ArrowArrayBuilder, len(readSchema.Fields))
-	for i, field := range readSchema.Fields {
-		builders[i] = datatypes.NewArrowArrayBuilder(memory.NewGoAllocator(), field.DataType)
-	}
+func NewInMemDataSource(schema datatypes.Schema, data datatypes.RecordBatch) *InMemDataSource {
 	memDS := &InMemDataSource{
-		schema:    schema,
-		data:      data,
-		cursor:    0,
-		numRows:   data.RowCount(),
-		pjSchema:  readSchema,
-		pjIndices: readIndices,
-		builders:  builders,
+		schema:  schema,
+		data:    data,
+		cursor:  0,
+		numRows: data.RowCount(),
 	}
 	return memDS
 }
@@ -45,7 +37,8 @@ func (memDS *InMemDataSource) Schema() datatypes.Schema {
 	return memDS.schema
 }
 
-func (memDS *InMemDataSource) Scan() datatypes.RecordBatch {
+func (memDS *InMemDataSource) Scan(projection []string) datatypes.RecordBatch {
+	memDS.inferProjection(projection)
 	for i, pjIdx := range memDS.pjIndices {
 		colDatum := memDS.data.Fields[pjIdx]
 		memDS.builders[i].Append(colDatum.GetValue(memDS.cursor))
@@ -64,4 +57,12 @@ func (memDS *InMemDataSource) Scan() datatypes.RecordBatch {
 
 func (memDS *InMemDataSource) Next() bool {
 	return memDS.cursor < memDS.numRows
+}
+
+func (memDS *InMemDataSource) inferProjection(projection []string) {
+	memDS.pjSchema, memDS.pjIndices = memDS.schema.SelectByName(projection)
+	memDS.builders = make([]datatypes.ArrowArrayBuilder, len(memDS.pjSchema.Fields))
+	for i, field := range memDS.pjSchema.Fields {
+		memDS.builders[i] = datatypes.NewArrowArrayBuilder(memory.NewGoAllocator(), field.DataType)
+	}
 }

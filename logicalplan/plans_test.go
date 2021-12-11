@@ -10,7 +10,7 @@ import (
 const dir = "../testdata"
 
 func Test_BuildLogicalPlans(t *testing.T) {
-	csv := datasource.NewCsvDataSource(dir+"/employee.csv", 1024, []string{})
+	csv := datasource.NewCsvDataSource(dir+"/employee.csv", 1024)
 
 	scan := NewScan("employee", csv, []string{})
 	eq := NewEq(NewCol("state"), NewLiteralString("CO"))
@@ -28,7 +28,7 @@ Projection: #id, #first_name, #last_name
 }
 
 func Test_BuildLogicalPlans_Aggregate(t *testing.T) {
-	csv := datasource.NewCsvDataSource(dir+"/employee.csv", 1024, []string{})
+	csv := datasource.NewCsvDataSource(dir+"/employee.csv", 1024)
 
 	scan := NewScan("employee", csv, []string{})
 	groupExpr := []LogicalExpr{NewCol("state")}

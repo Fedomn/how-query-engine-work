@@ -11,7 +11,7 @@ import (
 const dir = "../testdata"
 
 func TestOptimizer_pushDown(t *testing.T) {
-	csv := NewCsvDataSource(dir+"/employee.csv", 1024, []string{})
+	csv := NewCsvDataSource(dir+"/employee.csv", 1024)
 	scan := NewScan("employee", csv, []string{})
 	plan := NewProjection(scan, []LogicalExpr{NewCol("id"), NewCol("first_name"), NewCol("last_name")})
 
@@ -30,7 +30,7 @@ Projection: #id, #first_name, #last_name
 }
 
 func TestOptimizer_pushDown_with_selection(t *testing.T) {
-	csv := NewCsvDataSource(dir+"/employee.csv", 1024, []string{})
+	csv := NewCsvDataSource(dir+"/employee.csv", 1024)
 	scan := NewScan("employee", csv, []string{})
 	eq := NewEq(NewCol("state"), NewLiteralString("CO"))
 	selection := NewSelection(scan, eq)
@@ -53,7 +53,7 @@ Projection: #id, #first_name, #last_name
 }
 
 func TestOptimizer_pushDown_with_aggregate(t *testing.T) {
-	csv := NewCsvDataSource(dir+"/employee.csv", 1024, []string{})
+	csv := NewCsvDataSource(dir+"/employee.csv", 1024)
 	scan := NewScan("employee", csv, []string{})
 	groupExpr := []LogicalExpr{NewCol("state")}
 	aggExpr := []AggregateExpr{NewMax(NewCast(NewCol("salary"), datatypes.Int32Type))}

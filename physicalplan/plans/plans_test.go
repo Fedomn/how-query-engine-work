@@ -13,7 +13,7 @@ const dir = "../../testdata"
 const filename = dir + "/alltypes_plain.parquet"
 
 func TestPhysicalPlan_Scan(t *testing.T) {
-	pds := datasource.NewParquetDataSource(filename, 10, []string{})
+	pds := datasource.NewParquetDataSource(filename, 10)
 	headers := []string{"Id", "Bool_col", "Tinyint_col", "Smallint_col", "Int_col", "Bigint_col", "Float_col", "Double_col", "Date_string_col", "String_col", "Timestamp_col"}
 	for i, header := range headers {
 		require.Equal(t, header, pds.Schema().Fields[i].Name)
@@ -54,7 +54,7 @@ ProjectionExec: [#0 #1 #3]
 }
 
 func TestPhysicalPlan_Scan_smallBatchSize(t *testing.T) {
-	pds := datasource.NewParquetDataSource(filename, 3, []string{})
+	pds := datasource.NewParquetDataSource(filename, 3)
 	headers := []string{"Id", "Bool_col", "Tinyint_col", "Smallint_col", "Int_col", "Bigint_col", "Float_col", "Double_col", "Date_string_col", "String_col", "Timestamp_col"}
 	for i, header := range headers {
 		require.Equal(t, header, pds.Schema().Fields[i].Name)

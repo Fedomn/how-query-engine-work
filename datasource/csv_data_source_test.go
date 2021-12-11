@@ -8,9 +8,9 @@ import (
 const dir = "../testdata"
 
 func TestCsvDataSource_Schema(t *testing.T) {
-	csv := NewCsvDataSource(dir+"/employee.csv", 1024, []string{})
+	csv := NewCsvDataSource(dir+"/employee.csv", 1024)
 	csv.Next()
-	recordBatch := csv.Scan()
+	recordBatch := csv.Scan([]string{})
 
 	require.Len(t, recordBatch.Fields, 6)
 
@@ -21,9 +21,9 @@ func TestCsvDataSource_Schema(t *testing.T) {
 }
 
 func TestCsvDataSource_Scan_with_no_projection(t *testing.T) {
-	csv := NewCsvDataSource(dir+"/employee.csv", 1024, []string{})
+	csv := NewCsvDataSource(dir+"/employee.csv", 1024)
 	csv.Next()
-	recordBatch := csv.Scan()
+	recordBatch := csv.Scan([]string{})
 
 	require.Len(t, recordBatch.Fields, 6)
 
@@ -37,9 +37,9 @@ func TestCsvDataSource_Scan_with_no_projection(t *testing.T) {
 }
 
 func TestCsvDataSource_Scan_with_projection(t *testing.T) {
-	csv := NewCsvDataSource(dir+"/employee.csv", 1024, []string{"id", "state", "salary"})
+	csv := NewCsvDataSource(dir+"/employee.csv", 1024)
 	csv.Next()
-	recordBatch := csv.Scan()
+	recordBatch := csv.Scan([]string{"id", "state", "salary"})
 	require.Len(t, recordBatch.Fields, 3)
 
 	secondColumn := recordBatch.Field(1)
@@ -52,10 +52,10 @@ func TestCsvDataSource_Scan_with_projection(t *testing.T) {
 }
 
 func TestCsvDataSource_Scan_with_smallBatch(t *testing.T) {
-	csv := NewCsvDataSource(dir+"/employee.csv", 2, []string{"state", "salary"})
+	csv := NewCsvDataSource(dir+"/employee.csv", 2)
 
 	csv.Next()
-	recordBatch := csv.Scan()
+	recordBatch := csv.Scan([]string{"state", "salary"})
 	secondField := recordBatch.Field(1)
 	secondFieldData := []string{"12000", "10000"}
 	for i, datum := range secondFieldData {
@@ -63,7 +63,7 @@ func TestCsvDataSource_Scan_with_smallBatch(t *testing.T) {
 	}
 
 	csv.Next()
-	recordBatch = csv.Scan()
+	recordBatch = csv.Scan([]string{"state", "salary"})
 	firstField := recordBatch.Field(0)
 	firstFieldData := []string{"CO", ""}
 	for i, datum := range firstFieldData {
