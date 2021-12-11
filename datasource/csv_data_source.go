@@ -2,12 +2,14 @@ package datasource
 
 import (
 	"bytes"
-	"encoding/csv"
+	rawCsv "encoding/csv"
 	"fmt"
+	"github.com/apache/arrow/go/v6/arrow/array"
+	"github.com/apache/arrow/go/v6/arrow/csv"
 	"github.com/apache/arrow/go/v6/arrow/memory"
-	"io"
 	"io/ioutil"
 	"query-engine/datatypes"
+	"sync"
 )
 
 // CsvDataSource must have headers
@@ -26,6 +28,8 @@ type CsvDataSource struct {
 	pjIndices []int
 	// arrow array builders
 	builders []datatypes.ArrowArrayBuilder
+
+	once sync.Once
 }
 
 func NewCsvDataSource(filename string, batchSize int) *CsvDataSource {
@@ -42,36 +46,25 @@ func (c *CsvDataSource) Schema() datatypes.Schema {
 }
 
 func (c *CsvDataSource) Scan(projection []string) datatypes.RecordBatch {
-	c.inferProjection(projection)
-	return c.createBatch(c.pjSchema, c.pjIndices, c.cursorBatchBuf)
+	c.once.Do(func() {
+		c.inferProjection(projection)
+	})
+
+	rec := c.csvReader.Record()
+
+	fields := make([]datatypes.ColumnArray, len(c.pjSchema.Fields))
+	for i := 0; i < len(c.pjIndices); i++ {
+		data := array.NewStringData(rec.Column(c.pjIndices[i]).Data())
+		fields[i] = datatypes.NewArrowFieldArray(data)
+	}
+	return datatypes.RecordBatch{
+		Schema: c.pjSchema,
+		Fields: fields,
+	}
 }
 
 func (c *CsvDataSource) Next() bool {
-	batchBuf := make([][]string, 0, c.batchSize)
-	iterCnt := 0
-	for {
-		// read one row from csv, then createBatch into columnar memory format
-		record, err := c.csvReader.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			panic(fmt.Sprintf("csv read err: %v", err))
-		}
-		batchBuf = append(batchBuf, record)
-		iterCnt++
-		if iterCnt == c.batchSize {
-			c.cursorBatchBuf = batchBuf
-			return true
-		}
-	}
-
-	if len(batchBuf) != 0 {
-		c.cursorBatchBuf = batchBuf
-		return true
-	}
-
-	return false
+	return c.csvReader.Next()
 }
 
 func (c *CsvDataSource) inferSchema() {
@@ -80,7 +73,7 @@ func (c *CsvDataSource) inferSchema() {
 		panic(fmt.Sprintf("csv file: %s not exist!", c.filename))
 	}
 
-	r := csv.NewReader(bytes.NewReader(file))
+	r := rawCsv.NewReader(bytes.NewReader(file))
 	firstRecord, err := r.Read()
 	if err != nil {
 		panic(fmt.Sprintf("csv read err: %v", err))
@@ -95,7 +88,7 @@ func (c *CsvDataSource) inferSchema() {
 	}
 
 	c.schema = datatypes.Schema{Fields: headers}
-	c.csvReader = r
+	c.csvReader = csv.NewReader(bytes.NewReader(file), c.schema.ToArrow(), csv.WithChunk(c.batchSize), csv.WithHeader(true))
 
 	c.builders = make([]datatypes.ArrowArrayBuilder, len(c.schema.Fields))
 	for i, field := range c.schema.Fields {
