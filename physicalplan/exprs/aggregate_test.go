@@ -6,7 +6,7 @@ import (
 )
 
 func TestAggregate_Min(t *testing.T) {
-	accumulator := NewMinExpr(NewColumnExpr(0)).CreateAccumulator()
+	accumulator := NewMinExpr(NewColumnIndexExpr(0)).CreateAccumulator()
 	accumulator.Accumulate(int8(10))
 	accumulator.Accumulate(int8(3))
 	accumulator.Accumulate(int8(5))
@@ -14,7 +14,7 @@ func TestAggregate_Min(t *testing.T) {
 }
 
 func TestAggregate_Max(t *testing.T) {
-	accumulator := NewMaxExpr(NewColumnExpr(0)).CreateAccumulator()
+	accumulator := NewMaxExpr(NewColumnIndexExpr(0)).CreateAccumulator()
 	accumulator.Accumulate(int8(10))
 	accumulator.Accumulate(int8(3))
 	accumulator.Accumulate(int8(5))
@@ -22,7 +22,7 @@ func TestAggregate_Max(t *testing.T) {
 }
 
 func TestAggregate_Sum(t *testing.T) {
-	accumulator := NewSumExpr(NewColumnExpr(0)).CreateAccumulator()
+	accumulator := NewSumExpr(NewColumnIndexExpr(0)).CreateAccumulator()
 	accumulator.Accumulate(int8(10))
 	accumulator.Accumulate(int8(3))
 	accumulator.Accumulate(int8(5))

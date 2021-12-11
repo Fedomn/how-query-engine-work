@@ -20,8 +20,8 @@ func TestPhysicalPlan_Scan(t *testing.T) {
 	}
 
 	scan := NewScanExec(pds, []string{})
-	eq1 := exprs.NewEqExpr(exprs.NewColumnExpr(5), exprs.NewLiteralLongExpr(10))
-	eq2 := exprs.NewEqExpr(exprs.NewColumnExpr(8), exprs.NewLiteralStringExpr("01/01/09"))
+	eq1 := exprs.NewEqExpr(exprs.NewColumnIndexExpr(5), exprs.NewLiteralLongExpr(10))
+	eq2 := exprs.NewEqExpr(exprs.NewColumnIndexExpr(8), exprs.NewLiteralStringExpr("01/01/09"))
 	and := exprs.NewAndExpr(eq1, eq2)
 	selection := NewSelectionExec(scan, and)
 
@@ -31,7 +31,7 @@ func TestPhysicalPlan_Scan(t *testing.T) {
 		{"Smallint_col", datatypes.Int32Type},
 	}
 	schema := datatypes.Schema{Fields: fields}
-	physicalExprs := []physicalplan.PhysicalExpr{exprs.NewColumnExpr(0), exprs.NewColumnExpr(1), exprs.NewColumnExpr(3)}
+	physicalExprs := []physicalplan.PhysicalExpr{exprs.NewColumnIndexExpr(0), exprs.NewColumnIndexExpr(1), exprs.NewColumnIndexExpr(3)}
 	plan := NewProjectionExec(selection, schema, physicalExprs)
 
 	require.True(t, plan.Next())
@@ -61,8 +61,8 @@ func TestPhysicalPlan_Scan_smallBatchSize(t *testing.T) {
 	}
 
 	scan := NewScanExec(pds, []string{})
-	eq1 := exprs.NewEqExpr(exprs.NewColumnExpr(5), exprs.NewLiteralLongExpr(10))
-	eq2 := exprs.NewEqExpr(exprs.NewColumnExpr(8), exprs.NewLiteralStringExpr("01/01/09"))
+	eq1 := exprs.NewEqExpr(exprs.NewColumnIndexExpr(5), exprs.NewLiteralLongExpr(10))
+	eq2 := exprs.NewEqExpr(exprs.NewColumnIndexExpr(8), exprs.NewLiteralStringExpr("01/01/09"))
 	and := exprs.NewAndExpr(eq1, eq2)
 	selection := NewSelectionExec(scan, and)
 
@@ -72,7 +72,7 @@ func TestPhysicalPlan_Scan_smallBatchSize(t *testing.T) {
 		{"Smallint_col", datatypes.Int32Type},
 	}
 	schema := datatypes.Schema{Fields: fields}
-	physicalExprs := []physicalplan.PhysicalExpr{exprs.NewColumnExpr(0), exprs.NewColumnExpr(1), exprs.NewColumnExpr(3)}
+	physicalExprs := []physicalplan.PhysicalExpr{exprs.NewColumnIndexExpr(0), exprs.NewColumnIndexExpr(1), exprs.NewColumnIndexExpr(3)}
 	plan := NewProjectionExec(selection, schema, physicalExprs)
 
 	// first batch

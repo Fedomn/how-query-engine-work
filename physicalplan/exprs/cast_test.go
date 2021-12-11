@@ -16,7 +16,7 @@ func TestCastExpr_int8_to_string(t *testing.T) {
 		Fields: []datatypes.ColumnArray{aBuilder.Build()},
 	}
 
-	expr := NewCastExpr(NewColumnExpr(0), datatypes.StringType)
+	expr := NewCastExpr(NewColumnIndexExpr(0), datatypes.StringType)
 	result := expr.Evaluate(recordBatch)
 
 	expect := []string{"1", "2", "-1"}
@@ -34,7 +34,7 @@ func TestCastExpr_string_to_int8(t *testing.T) {
 		Fields: []datatypes.ColumnArray{aBuilder.Build()},
 	}
 
-	expr := NewCastExpr(NewColumnExpr(0), datatypes.Int8Type)
+	expr := NewCastExpr(NewColumnIndexExpr(0), datatypes.Int8Type)
 	result := expr.Evaluate(recordBatch)
 
 	expect := []int8{int8(1), int8(2), int8(-1)}

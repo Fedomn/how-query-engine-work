@@ -40,8 +40,8 @@ func TestHashAggregateExec(t *testing.T) {
 	}
 
 	scan := NewScanExec(pds, []string{})
-	groupExpr := []physicalplan.PhysicalExpr{exprs.NewColumnExpr(1)}
-	aggExpr := []exprs.AggregateExpr{exprs.NewMaxExpr(exprs.NewColumnExpr(0)), exprs.NewMinExpr(exprs.NewColumnExpr(0))}
+	groupExpr := []physicalplan.PhysicalExpr{exprs.NewColumnIndexExpr(1)}
+	aggExpr := []exprs.AggregateExpr{exprs.NewMaxExpr(exprs.NewColumnIndexExpr(0)), exprs.NewMinExpr(exprs.NewColumnIndexExpr(0))}
 	schema := datatypes.Schema{Fields: []datatypes.Field{
 		{"Bool_col", datatypes.BooleanType},
 		{"Max(Id)", datatypes.Int32Type},

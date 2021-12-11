@@ -61,6 +61,42 @@ func (c Cast) Evaluate(input datatypes.RecordBatch) datatypes.ColumnArray {
 				builder.Append(castValue)
 			}
 		}
+	case datatypes.FloatType:
+		for i := 0; i < columnArray.Size(); i++ {
+			v := columnArray.GetValue(i)
+			if v == nil {
+				builder.Append(nil)
+			} else {
+				var castValue float32
+				switch vv := v.(type) {
+				case int, int8, int16, int32:
+					castValue = v.(float32)
+				case string:
+					castValue = c.strToFloat32(vv)
+				default:
+					panic(fmt.Sprintf("Cannot cast value:%v to float", vv))
+				}
+				builder.Append(castValue)
+			}
+		}
+	case datatypes.DoubleType:
+		for i := 0; i < columnArray.Size(); i++ {
+			v := columnArray.GetValue(i)
+			if v == nil {
+				builder.Append(nil)
+			} else {
+				var castValue float64
+				switch vv := v.(type) {
+				case int, int8, int16, int32:
+					castValue = v.(float64)
+				case string:
+					castValue = c.strToFloat64(vv)
+				default:
+					panic(fmt.Sprintf("Cannot cast value:%v to double", vv))
+				}
+				builder.Append(castValue)
+			}
+		}
 	case datatypes.StringType:
 		for i := 0; i < columnArray.Size(); i++ {
 			v := columnArray.GetValue(i)
@@ -81,6 +117,22 @@ func (c Cast) strToInt64(v string) int {
 	vv, err := strconv.Atoi(v)
 	if err != nil {
 		panic(fmt.Sprintf("Cast %s to int err: %v", v, err))
+	}
+	return vv
+}
+
+func (c Cast) strToFloat32(v string) float32 {
+	vv, err := strconv.ParseFloat(v, 32)
+	if err != nil {
+		panic(fmt.Sprintf("Cast %s to float32 err: %v", v, err))
+	}
+	return float32(vv)
+}
+
+func (c Cast) strToFloat64(v string) float64 {
+	vv, err := strconv.ParseFloat(v, 64)
+	if err != nil {
+		panic(fmt.Sprintf("Cast %s to float64 err: %v", v, err))
 	}
 	return vv
 }

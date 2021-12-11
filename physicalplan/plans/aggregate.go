@@ -23,10 +23,13 @@ type HashAggregateExec struct {
 
 	// schema represents groupExprs and aggExprs
 	schema datatypes.Schema
+
+	// finished aggregation calculation
+	done bool
 }
 
 func NewHashAggregateExec(input physicalplan.PhysicalPlan, groupExpr []physicalplan.PhysicalExpr, aggExpr []exprs.AggregateExpr, schema datatypes.Schema) HashAggregateExec {
-	return HashAggregateExec{input, groupExpr, aggExpr, schema}
+	return HashAggregateExec{input, groupExpr, aggExpr, schema, false}
 }
 
 func (h HashAggregateExec) Schema() datatypes.Schema {
@@ -99,6 +102,7 @@ func (h HashAggregateExec) Execute() datatypes.RecordBatch {
 		fields[i] = builders[i].Build()
 	}
 	// create result batch containing final aggregate values
+	h.done = true
 	return datatypes.RecordBatch{
 		Schema: h.schema,
 		Fields: fields,
@@ -106,7 +110,7 @@ func (h HashAggregateExec) Execute() datatypes.RecordBatch {
 }
 
 func (h HashAggregateExec) Next() bool {
-	panic("HashAggregateExec not support next, otherwise it will scan all rows and execute aggregation")
+	return !h.done
 }
 
 func (h HashAggregateExec) Children() []physicalplan.PhysicalPlan {

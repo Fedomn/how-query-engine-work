@@ -61,7 +61,7 @@ func NewPhysicalExpr(expr logicalplan.LogicalExpr, input logicalplan.LogicalPlan
 	case logicalplan.LiteralString:
 		return exprs.NewLiteralStringExpr(e.Str)
 	case logicalplan.ColumnIndex:
-		return exprs.NewColumnExpr(e.Index)
+		return exprs.NewColumnIndexExpr(e.Index)
 	case logicalplan.Alias:
 		// note that there is no physical expression for an alias since the alias
 		// only affects the name using in the planning phase and not how the aliased
@@ -73,7 +73,7 @@ func NewPhysicalExpr(expr logicalplan.LogicalExpr, input logicalplan.LogicalPlan
 		if idx < 0 {
 			panic(fmt.Sprintf("No column named: %s", e.Name))
 		}
-		return exprs.NewColumnExpr(idx)
+		return exprs.NewColumnIndexExpr(idx)
 	case logicalplan.CastExpr:
 		return exprs.NewCastExpr(NewPhysicalExpr(e.Expr, input), e.DType)
 	case logicalplan.BooleanBinaryExpr:

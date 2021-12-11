@@ -21,10 +21,10 @@ func TestBooleanExpr_AndExpr(t *testing.T) {
 	}
 
 	// eqExpr	(l == r)
-	eqExpr := NewEqExpr(NewColumnExpr(0), NewColumnExpr(1))
+	eqExpr := NewEqExpr(NewColumnIndexExpr(0), NewColumnIndexExpr(1))
 
 	// gtExpr	(l > 0)
-	gtExpr := NewGtExpr(NewColumnExpr(0), NewLiteralLongExpr(0))
+	gtExpr := NewGtExpr(NewColumnIndexExpr(0), NewLiteralLongExpr(0))
 
 	// andExpr	(col0 == col1 && col0 > 0)
 	andExpr := NewAndExpr(eqExpr, gtExpr)
@@ -49,7 +49,7 @@ func TestMathExpr_Expr(t *testing.T) {
 	}
 
 	// addExpr => 2, 4, 6
-	addExpr := NewAddExpr(NewColumnExpr(0), NewColumnExpr(1))
+	addExpr := NewAddExpr(NewColumnIndexExpr(0), NewColumnIndexExpr(1))
 
 	// multiply => 4, 8, 12
 	multiplyExpr := NewMultiplyExpr(addExpr, NewLiteralLongExpr(2))
