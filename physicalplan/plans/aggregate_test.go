@@ -63,7 +63,7 @@ func TestHashAggregateExec(t *testing.T) {
 	}
 
 	planFormat := `
-HashAggregateExec: groupExpr=[#1], aggExpr=[SUM(#0) MIN(#0)]
+HashAggregateExec: groupExpr=[#1], aggExpr=[MAX(#0) MIN(#0)]
 	ScanExec: schema={[{Id int32} {Bool_col bool} {Tinyint_col int32} {Smallint_col int32} {Int_col int32} {Bigint_col int64} {Float_col float32} {Double_col float64} {Date_string_col utf8} {String_col utf8} {Timestamp_col utf8}]}, projection=[]
 `
 	require.Equal(t, planFormat, physicalplan.PrettyFormat(plan))

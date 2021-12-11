@@ -42,7 +42,7 @@ Aggregate: groupExpr=[#state], aggregateExpr=[MIN(#salary) MAX(#salary) SUM(#sal
 
 	plan := NewPhysicalPlan(optimizedPlan)
 	expect = `
-HashAggregateExec: groupExpr=[#0], aggExpr=[MIN(#1) SUM(#1) SUM(#1)]
+HashAggregateExec: groupExpr=[#0], aggExpr=[MIN(#1) MAX(#1) SUM(#1)]
 	ScanExec: schema={[{state utf8} {salary utf8}]}, projection=[state salary]
 `
 	require.Equal(t, expect, physicalplan.PrettyFormat(plan))
