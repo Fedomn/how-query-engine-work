@@ -22,6 +22,15 @@ type Schema struct {
 	Fields []Field
 }
 
+func (s *Schema) FindFirstIndexByName(name string) int {
+	for i, field := range s.Fields {
+		if field.Name == name {
+			return i
+		}
+	}
+	return -1
+}
+
 func (s *Schema) ToArrow() *arrow.Schema {
 	fields := make([]arrow.Field, len(s.Fields))
 	for idx, field := range s.Fields {

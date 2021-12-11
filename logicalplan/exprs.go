@@ -51,18 +51,18 @@ func NewColumnIndex(i int) ColumnIndex {
 
 // LiteralString Logical expression representing a literal string value.
 type LiteralString struct {
-	str string
+	Str string
 }
 
 func (l LiteralString) ToField(input LogicalPlan) datatypes.Field {
 	return datatypes.Field{
-		Name:     l.str,
+		Name:     l.Str,
 		DataType: datatypes.StringType,
 	}
 }
 
 func (l LiteralString) String() string {
-	return fmt.Sprintf("'%s'", l.str)
+	return fmt.Sprintf("'%s'", l.Str)
 }
 
 func NewLiteralString(str string) LiteralString {
@@ -71,18 +71,18 @@ func NewLiteralString(str string) LiteralString {
 
 // LiteralLong Logical expression representing a literal long value.
 type LiteralLong struct {
-	n int64
+	N int64
 }
 
 func (l LiteralLong) ToField(input LogicalPlan) datatypes.Field {
 	return datatypes.Field{
-		Name:     fmt.Sprintf("%d", l.n),
+		Name:     fmt.Sprintf("%d", l.N),
 		DataType: datatypes.Int64Type,
 	}
 }
 
 func (l LiteralLong) String() string {
-	return fmt.Sprintf("%d", l.n)
+	return fmt.Sprintf("%d", l.N)
 }
 
 func NewLiteralLong(n int64) LiteralLong {
@@ -91,34 +91,34 @@ func NewLiteralLong(n int64) LiteralLong {
 
 // LiteralFloat Logical expression representing a literal float value.
 type LiteralFloat struct {
-	n float32
+	N float32
 }
 
 func (l LiteralFloat) ToField(input LogicalPlan) datatypes.Field {
 	return datatypes.Field{
-		Name:     fmt.Sprintf("%g", l.n),
+		Name:     fmt.Sprintf("%g", l.N),
 		DataType: datatypes.FloatType,
 	}
 }
 
 func (l LiteralFloat) String() string {
-	return fmt.Sprintf("%g", l.n)
+	return fmt.Sprintf("%g", l.N)
 }
 
 // LiteralDouble Logical expression representing a literal double value.
 type LiteralDouble struct {
-	n float64
+	N float64
 }
 
 func (l LiteralDouble) ToField(input LogicalPlan) datatypes.Field {
 	return datatypes.Field{
-		Name:     fmt.Sprintf("%g", l.n),
+		Name:     fmt.Sprintf("%g", l.N),
 		DataType: datatypes.DoubleType,
 	}
 }
 
 func (l LiteralDouble) String() string {
-	return fmt.Sprintf("%g", l.n)
+	return fmt.Sprintf("%g", l.N)
 }
 
 func NewLiteralDouble(n float64) LiteralDouble {
@@ -130,18 +130,18 @@ func NewLiteralDouble(n float64) LiteralDouble {
 // CastExpr Cast current logical expr type to target dataType
 type CastExpr struct {
 	Expr  LogicalExpr
-	dType arrow.DataType
+	DType arrow.DataType
 }
 
 func (c CastExpr) ToField(input LogicalPlan) datatypes.Field {
 	return datatypes.Field{
 		Name:     c.Expr.ToField(input).Name,
-		DataType: c.dType,
+		DataType: c.DType,
 	}
 }
 
 func (c CastExpr) String() string {
-	return fmt.Sprintf("CAST(%s AS %s)", c.Expr, c.dType)
+	return fmt.Sprintf("CAST(%s AS %s)", c.Expr, c.DType)
 }
 
 func NewCast(expr LogicalExpr, dType arrow.DataType) CastExpr {
@@ -152,14 +152,14 @@ func NewCast(expr LogicalExpr, dType arrow.DataType) CastExpr {
 
 // BinaryExpr an expression take two inputs, like comparison, boolean and math expressions.
 type BinaryExpr struct {
-	name string
-	op   string
+	Name string
+	Op   string
 	L    LogicalExpr
 	R    LogicalExpr
 }
 
 func (b BinaryExpr) String() string {
-	return fmt.Sprintf("%s %s %s", b.L, b.op, b.R)
+	return fmt.Sprintf("%s %s %s", b.L, b.Op, b.R)
 }
 
 // BooleanBinaryExpr an expression return a boolean type
@@ -169,7 +169,7 @@ type BooleanBinaryExpr struct {
 
 func (b BooleanBinaryExpr) ToField(input LogicalPlan) datatypes.Field {
 	return datatypes.Field{
-		Name:     b.name,
+		Name:     b.Name,
 		DataType: datatypes.BooleanType,
 	}
 }
@@ -206,7 +206,7 @@ type MathExpr struct {
 
 func (m MathExpr) ToField(input LogicalPlan) datatypes.Field {
 	return datatypes.Field{
-		Name:     m.name,
+		Name:     m.Name,
 		DataType: m.L.ToField(input).DataType,
 	}
 }

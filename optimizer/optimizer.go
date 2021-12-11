@@ -53,7 +53,7 @@ func (p ProjectionPushDownRule) pushDown(plan LogicalPlan, accCols *[]string) Lo
 		return NewAggregate(input, castPlan.GroupExpr, castPlan.AggExpr)
 	case Scan:
 		// the bottom logical plan
-		return NewScan(castPlan.Path, castPlan.DataSource, *accCols)
+		return NewScan(castPlan.Path, castPlan.DataSource, p.distinctCols(*accCols))
 	default:
 		panic(fmt.Sprintf("ProjectionPushDownRule not support plan: %s", castPlan))
 	}
@@ -86,4 +86,16 @@ func (p ProjectionPushDownRule) extractCols(expr LogicalExpr, input LogicalPlan,
 	default:
 		panic(fmt.Sprintf("extractCols not support expr: %s", e))
 	}
+}
+
+func (p ProjectionPushDownRule) distinctCols(accCols []string) []string {
+	colSet := make(map[string]struct{})
+	newCols := make([]string, 0)
+	for _, col := range accCols {
+		if _, ok := colSet[col]; !ok {
+			colSet[col] = struct{}{}
+			newCols = append(newCols, col)
+		}
+	}
+	return newCols
 }

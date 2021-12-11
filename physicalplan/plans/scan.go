@@ -13,11 +13,13 @@ type ScanExec struct {
 }
 
 func (s ScanExec) Schema() datatypes.Schema {
-	return s.ds.Schema()
+	d := s.ds.Schema()
+	schema, _ := d.SelectByName(s.projection)
+	return schema
 }
 
 func (s ScanExec) Execute() datatypes.RecordBatch {
-	return s.ds.Scan()
+	return s.ds.Scan(s.projection)
 }
 
 func (s ScanExec) Next() bool {
