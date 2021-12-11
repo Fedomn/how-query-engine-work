@@ -299,7 +299,7 @@ type AggregateExpr struct {
 }
 
 func (a AggregateExpr) ToField(input LogicalPlan) datatypes.Field {
-	return datatypes.Field{Name: a.Name, DataType: a.Expr.ToField(input).DataType}
+	return datatypes.Field{Name: a.String(), DataType: a.Expr.ToField(input).DataType}
 }
 
 func (a AggregateExpr) String() string {

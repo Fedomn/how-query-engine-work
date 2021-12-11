@@ -28,15 +28,15 @@ type HashAggregateExec struct {
 	done bool
 }
 
-func NewHashAggregateExec(input physicalplan.PhysicalPlan, groupExpr []physicalplan.PhysicalExpr, aggExpr []exprs.AggregateExpr, schema datatypes.Schema) HashAggregateExec {
-	return HashAggregateExec{input, groupExpr, aggExpr, schema, false}
+func NewHashAggregateExec(input physicalplan.PhysicalPlan, groupExpr []physicalplan.PhysicalExpr, aggExpr []exprs.AggregateExpr, schema datatypes.Schema) *HashAggregateExec {
+	return &HashAggregateExec{input, groupExpr, aggExpr, schema, false}
 }
 
-func (h HashAggregateExec) Schema() datatypes.Schema {
+func (h *HashAggregateExec) Schema() datatypes.Schema {
 	return h.schema
 }
 
-func (h HashAggregateExec) Execute() datatypes.RecordBatch {
+func (h *HashAggregateExec) Execute() datatypes.RecordBatch {
 	row2AccMap := make(map[string][]exprs.Accumulator)
 	rowGroupKeys := make([]string, 0)
 
@@ -109,19 +109,19 @@ func (h HashAggregateExec) Execute() datatypes.RecordBatch {
 	}
 }
 
-func (h HashAggregateExec) Next() bool {
+func (h *HashAggregateExec) Next() bool {
 	return !h.done
 }
 
-func (h HashAggregateExec) Children() []physicalplan.PhysicalPlan {
+func (h *HashAggregateExec) Children() []physicalplan.PhysicalPlan {
 	return []physicalplan.PhysicalPlan{h.input}
 }
 
-func (h HashAggregateExec) String() string {
+func (h *HashAggregateExec) String() string {
 	return fmt.Sprintf("HashAggregateExec: groupExpr=%v, aggExpr=%v", h.groupExpr, h.aggExpr)
 }
 
-func (h HashAggregateExec) encodeCols(cols []interface{}) string {
+func (h *HashAggregateExec) encodeCols(cols []interface{}) string {
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
 	err := enc.Encode(cols)
@@ -131,7 +131,7 @@ func (h HashAggregateExec) encodeCols(cols []interface{}) string {
 	return buf.String()
 }
 
-func (h HashAggregateExec) decodeCols(encStr string) []interface{} {
+func (h *HashAggregateExec) decodeCols(encStr string) []interface{} {
 	var res []interface{}
 	buf := bytes.NewBuffer([]byte(encStr))
 	dec := gob.NewDecoder(buf)

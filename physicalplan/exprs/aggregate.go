@@ -95,7 +95,7 @@ func (m MaxExpr) CreateAccumulator() Accumulator {
 }
 
 func (m MaxExpr) String() string {
-	return fmt.Sprintf("SUM(%s)", m.expr)
+	return fmt.Sprintf("MAX(%s)", m.expr)
 }
 
 type MaxAccumulator struct {
