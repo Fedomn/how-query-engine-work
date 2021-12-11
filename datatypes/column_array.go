@@ -16,6 +16,10 @@ type ArrowFieldArray struct {
 	fieldArray array.Interface
 }
 
+func NewArrowFieldArray(fieldArray array.Interface) *ArrowFieldArray {
+	return &ArrowFieldArray{fieldArray}
+}
+
 func (a *ArrowFieldArray) GetType() arrow.DataType {
 	return a.fieldArray.DataType()
 }
