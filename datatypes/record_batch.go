@@ -31,7 +31,7 @@ func (r *RecordBatch) ToCSV() string {
 			if colIdx > 0 {
 				b = append(b, ",")
 			}
-			value := r.Fields[colIdx].GetValue(colIdx)
+			value := r.Fields[colIdx].GetValue(rowIdx)
 			if value == nil {
 				b = append(b, "null")
 			} else {
