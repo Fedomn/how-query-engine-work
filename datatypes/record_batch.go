@@ -23,8 +23,8 @@ func (r *RecordBatch) Field(i int) ColumnArray {
 	return r.Fields[i]
 }
 
-// for better testing
-func (r *RecordBatch) toCSV() string {
+// ToCSV for better testing
+func (r *RecordBatch) ToCSV() string {
 	b := make([]string, 0)
 	for rowIdx := 0; rowIdx < r.RowCount(); rowIdx++ {
 		for colIdx := 0; colIdx < r.ColumnCount(); colIdx++ {
@@ -44,5 +44,5 @@ func (r *RecordBatch) toCSV() string {
 }
 
 func (r *RecordBatch) String() string {
-	return r.toCSV()
+	return r.ToCSV()
 }

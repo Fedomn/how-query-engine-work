@@ -96,34 +96,30 @@ func (c *CsvDataSource) inferSchema() {
 
 	c.schema = datatypes.Schema{Fields: headers}
 	c.csvReader = r
+
+	c.builders = make([]datatypes.ArrowArrayBuilder, len(c.schema.Fields))
+	for i, field := range c.schema.Fields {
+		c.builders[i] = datatypes.NewArrowArrayBuilder(memory.NewGoAllocator(), field.DataType)
+	}
 }
 
 func (c *CsvDataSource) inferProjection(projection []string) {
 	c.pjSchema, c.pjIndices = c.schema.SelectByName(projection)
-	c.builders = make([]datatypes.ArrowArrayBuilder, len(c.pjSchema.Fields))
-	for i, field := range c.pjSchema.Fields {
-		c.builders[i] = datatypes.NewArrowArrayBuilder(memory.NewGoAllocator(), field.DataType)
-	}
 }
 
 func (c *CsvDataSource) createBatch(
 	readSchema datatypes.Schema, readIndices []int, batchBuf [][]string,
 ) datatypes.RecordBatch {
-	builders := make([]datatypes.ArrowArrayBuilder, 0)
-	for _, field := range readSchema.Fields {
-		builders = append(builders, datatypes.NewArrowArrayBuilder(memory.NewGoAllocator(), field.DataType))
-	}
-
 	for i := 0; i < len(batchBuf); i++ {
 		row := batchBuf[i]
 		for j := 0; j < len(readIndices); j++ {
-			builders[j].Append(row[readIndices[j]])
+			c.builders[j].Append(row[readIndices[j]])
 		}
 	}
 
 	fields := make([]datatypes.ColumnArray, len(readSchema.Fields))
-	for i := 0; i < len(builders); i++ {
-		fields[i] = builders[i].Build()
+	for i := 0; i < len(readIndices); i++ {
+		fields[i] = c.builders[i].Build()
 	}
 	return datatypes.RecordBatch{
 		Schema: readSchema,
