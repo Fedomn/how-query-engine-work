@@ -101,12 +101,14 @@ type Aggregate struct {
 }
 
 func (a Aggregate) Schema() datatypes.Schema {
-	fields := make([]datatypes.Field, len(a.GroupExpr)+len(a.AggExpr))
+	totalSize := len(a.GroupExpr) + len(a.AggExpr)
+	fields := make([]datatypes.Field, totalSize)
+
 	for i := 0; i < len(a.GroupExpr); i++ {
 		fields[i] = a.GroupExpr[i].ToField(a.Input)
 	}
-	for i := len(a.GroupExpr); i < len(a.AggExpr); i++ {
-		fields[i] = a.AggExpr[i].ToField(a.Input)
+	for i := len(a.GroupExpr); i < totalSize; i++ {
+		fields[i] = a.AggExpr[i-len(a.GroupExpr)].ToField(a.Input)
 	}
 	return datatypes.Schema{Fields: fields}
 }
