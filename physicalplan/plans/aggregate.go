@@ -1,8 +1,6 @@
 package plans
 
 import (
-	"bytes"
-	"encoding/gob"
 	"fmt"
 	"github.com/apache/arrow/go/v6/arrow/memory"
 	"query-engine/datatypes"
@@ -38,6 +36,7 @@ func (h *HashAggregateExec) Schema() datatypes.Schema {
 
 func (h *HashAggregateExec) Execute() datatypes.RecordBatch {
 	row2AccMap := make(map[string][]exprs.Accumulator)
+	rowHash2row := make(map[string][]interface{})
 	rowGroupKeys := make([]string, 0)
 
 	for h.input.Next() {
@@ -71,6 +70,8 @@ func (h *HashAggregateExec) Execute() datatypes.RecordBatch {
 				}
 				row2AccMap[groupKey] = accumulators
 				accs = row2AccMap[groupKey]
+
+				rowHash2row[groupKey] = row
 			}
 
 			// perform accumulation
@@ -87,7 +88,7 @@ func (h *HashAggregateExec) Execute() datatypes.RecordBatch {
 	}
 
 	for _, rowGroupKey := range rowGroupKeys {
-		cols := h.decodeCols(rowGroupKey)
+		cols := rowHash2row[rowGroupKey]
 		for i := 0; i < len(h.groupExpr); i++ {
 			builders[i].Append(cols[i])
 		}
@@ -122,21 +123,9 @@ func (h *HashAggregateExec) String() string {
 }
 
 func (h *HashAggregateExec) encodeCols(cols []interface{}) string {
-	var buf bytes.Buffer
-	enc := gob.NewEncoder(&buf)
-	err := enc.Encode(cols)
-	if err != nil {
-		panic(fmt.Sprintf("HashAggregateExec encode cols err: %v", err))
-	}
-	return buf.String()
-}
-
-func (h *HashAggregateExec) decodeCols(encStr string) []interface{} {
-	var res []interface{}
-	buf := bytes.NewBuffer([]byte(encStr))
-	dec := gob.NewDecoder(buf)
-	if err := dec.Decode(&res); err != nil {
-		panic(fmt.Sprintf("HashAggregateExec decode err: %v", err))
+	res := ""
+	for _, col := range cols {
+		res += fmt.Sprint(col)
 	}
 	return res
 }

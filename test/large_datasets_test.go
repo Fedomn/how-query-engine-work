@@ -36,5 +36,6 @@ func Test_execution_on_large_datasets(t *testing.T) {
 	end := time.Now()
 
 	// Query took 18.084590897s
+	// After removed gob: Query took 6.710639891s
 	fmt.Printf("Query took %s\n", end.Sub(start))
 }
