@@ -78,4 +78,10 @@ func (ab *ArrowArrayBuilder) Build() ColumnArray {
 	return &ArrowFieldArray{fieldArray: ab.builder.NewArray()}
 }
 
-// TODO use ab.builder.Reserve(n) to init columnArray size
+func (ab *ArrowArrayBuilder) Reserve(size int) {
+	ab.builder.Reserve(size)
+}
+
+func (ab *ArrowArrayBuilder) Release() {
+	ab.builder.Release()
+}
