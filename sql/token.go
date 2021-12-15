@@ -1,6 +1,9 @@
 package sql
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type TokenType int
 
@@ -544,4 +547,16 @@ type Token struct {
 
 func (t Token) String() string {
 	return fmt.Sprintf("Token(%s, %d, %d)", t.Text, tokenTypes[t.Type], t.EndOffset)
+}
+
+func (t Token) IsLiteral() bool {
+	return strings.HasPrefix(tokenTypes[t.Type].name, "Literal")
+}
+
+func (t Token) IsKeyword() bool {
+	return strings.HasPrefix(tokenTypes[t.Type].name, "Keyword")
+}
+
+func (t Token) IsSymbol() bool {
+	return strings.HasPrefix(tokenTypes[t.Type].name, "Symbol")
 }
